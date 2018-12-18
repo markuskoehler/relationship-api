@@ -17,4 +17,4 @@ Route::post('/register', 'Auth\AuthController@register');
 Route::post('/login', 'Auth\AuthController@login');
 Route::post('/logout', 'Auth\AuthController@logout');
 Route::post('/refresh', 'Auth\AuthController@refresh');
-Route::post('/me', 'Auth\AuthController@me');
+Route::get('/me', 'Auth\AuthController@me');
