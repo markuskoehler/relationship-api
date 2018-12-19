@@ -9,6 +9,10 @@ use App\Http\Controllers\Controller;
 class AuthController extends Controller
 {
     /**
+     * @see https://medium.com/lightrail/getting-token-authentication-right-in-a-stateless-single-page-application-57d0c6474e3
+     * for the idea implemented here, as well as the tymon/jwt-auth docs
+     */
+    /**
      * Create a new AuthController instance.
      *
      * @return void
@@ -27,7 +31,7 @@ class AuthController extends Controller
 
         $token = auth()->login($user);
 
-        return $this->respondWithToken($token);
+        return $this->respondWithCookies($token);
     }
 
     public function login()
@@ -38,7 +42,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        return $this->respondWithCookies($token);
     }
 
     /**
@@ -58,7 +62,7 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return $this->respondWithCookies(auth()->refresh());
     }
 
     public function logout()
@@ -75,5 +79,15 @@ class AuthController extends Controller
             'token_type'   => 'bearer',
             'expires_in'   => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+    protected function respondWithCookies($token)
+    {
+        list($header, $payload, $signature) = explode('.', $token);
+        return response([
+            'message'   => 'Success. Please reference the cookies',
+        ])
+            ->cookie('rsa_spa_hp', $header . '.' . $payload,    30, '', '', !app()->environment('local'), false)
+            ->cookie('rsa_spa_s', $signature,                    0, '', '', !app()->environment('local'), true);
     }
 }
